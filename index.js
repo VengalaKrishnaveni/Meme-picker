@@ -50,30 +50,58 @@ function highlightSelectedOption(e){
 //listen for click event of get image button
 const getImageBtn = document.getElementById('get-image-btn')
 
-getImageBtn.addEventListener('click',getMatchingCatsArray)
+getImageBtn.addEventListener('click',renderCatImage)
 
 function getMatchingCatsArray(){
     if(document.querySelector('input[type="radio"]:checked').value){
         const radioSelected = document.querySelector('input[type="radio"]:checked').value
-        console.log(radioSelected)
-        const emotions = catsData.emotionTags
-        const matchingEmotions = emotions.filter(function(emotion){
-            if(emotion === radioSelected){
-                return true
+        const matchingEmotions = catsData.filter(function(cat){
+            const isGif = document.getElementById('gifs-only-option').checked
+            if(isGif){
+                return cat.emotionTags.includes(radioSelected) && cat.isGif
             }
             else{
-                return false
+                return cat.emotionTags.includes(radioSelected)
             }
         })
-        console.log(matchingEmotions)
-    }
-    //gif's only option
-    // if(document.getElementById('gifs-only-option').checked){
-    //     console.log('yes')
-    // }
-    // else{
-    //     console.log('no')
-    // }
-    
-    unhighlightSelectedOption()
+        return matchingEmotions
+    }   
 }
+
+function getSingleCatObject(){
+    const catsArray =  getMatchingCatsArray()
+    if(catsArray.length === 1){
+        console.log(catsArray)
+        return catsArray[0]
+    }
+    else{
+        const index = randomSelect(catsArray.length)
+        return catsArray[index]
+    }
+}
+
+const memeModalInner = document.getElementById('meme-modal-inner')
+const memeModal = document.getElementById('meme-modal')
+
+function renderCatImage(){
+    const catObject = getSingleCatObject()
+    memeModal.style.display = 'flex'
+    memeModalInner.innerHTML = `<img 
+    class="cat-img" 
+    src="./images/${catObject.image}"
+    alt="${catObject.alt}"
+    >
+    `
+}
+
+
+//random image selector
+function randomSelect(catsArrayLength){
+    return Math.floor(Math.random()*catsArrayLength)
+}
+
+//modal close button
+const modalCloseBtn = document.getElementById('meme-modal-close-btn')
+modalCloseBtn.addEventListener('click',function(){
+    memeModal.style.display = 'none'
+})
